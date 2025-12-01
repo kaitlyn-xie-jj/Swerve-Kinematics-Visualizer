@@ -1,0 +1,5 @@
+{
+  "name": "Swerve Drive Kinematics",
+  "description": "An interactive educational animation demonstrating the vector mathematics behind swerve drive robot movement.",
+  "requestFramePermissions": []
+}
