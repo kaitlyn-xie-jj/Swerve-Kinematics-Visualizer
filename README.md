@@ -6,8 +6,8 @@ This is a browser-based teaching/demo tool, not a controller for physical hardwa
 
 ## What you can explore
 
-- **Translation:** drag the joystick to command forward/backward and left/right chassis velocity.
-- **Rotation:** adjust the slider to add clockwise or counter-clockwise angular velocity.
+- **Translation:** drag the joystick or use the keyboard-accessible Vx/Vy sliders to command forward/backward and left/right chassis velocity.
+- **Rotation:** adjust the slider to add clockwise or counter-clockwise angular velocity; use **Reset all controls** to return every input to zero.
 - **Each module:** inspect the resultant wheel velocity (red arrow), reported speed, and steering angle.
 - **Coordinate convention:** robot-relative +X is forward, +Y is left; positive angular velocity is counter-clockwise.
 
