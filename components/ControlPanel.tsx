@@ -135,15 +135,44 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ state, onChange }) =
            <span>Vx: {state.vx.toFixed(2)}</span>
            <span>Vy: {state.vy.toFixed(2)}</span>
         </div>
+
+        {/* Native sliders provide a keyboard-accessible alternative to dragging. */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <label className="flex flex-col gap-2 text-xs font-medium text-slate-600">
+            Forward / Back (Vx)
+            <input
+              type="range"
+              min="-1"
+              max="1"
+              step="0.05"
+              value={state.vx}
+              onChange={(e) => onChange({ ...state, vx: parseFloat(e.target.value) })}
+              className="w-full accent-blue-600"
+            />
+          </label>
+          <label className="flex flex-col gap-2 text-xs font-medium text-slate-600">
+            Left / Right (Vy)
+            <input
+              type="range"
+              min="-1"
+              max="1"
+              step="0.05"
+              value={state.vy}
+              onChange={(e) => onChange({ ...state, vy: parseFloat(e.target.value) })}
+              className="w-full accent-blue-600"
+            />
+          </label>
+        </div>
       </div>
 
       {/* Rotation Section */}
       <div>
-         <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
+         <label htmlFor="swerve-rotation" className="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
            Rotation (ω)
-         </h2>
+         </label>
          <div className="px-2">
             <input
+              id="swerve-rotation"
               type="range"
               min="-1"
               max="1"
@@ -160,6 +189,13 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ state, onChange }) =
          </div>
       </div>
 
+      <button
+        type="button"
+        onClick={() => onChange({ vx: 0, vy: 0, omega: 0 })}
+        className="self-stretch rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+      >
+        Reset all controls
+      </button>
     </div>
   );
 };
