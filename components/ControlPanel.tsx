@@ -42,6 +42,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ state, onChange }) =
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 0) return;
     isDragging.current = true;
     handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
   };
@@ -57,7 +58,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ state, onChange }) =
     };
     
     const handleGlobalTouchMove = (e: TouchEvent) => {
-       if (isDragging.current) {
+       if (isDragging.current && e.touches.length > 0) {
          e.preventDefault(); // Prevent scrolling while driving
          handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
        }
@@ -67,12 +68,16 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ state, onChange }) =
     window.addEventListener('mouseup', handleGlobalUp);
     window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
     window.addEventListener('touchend', handleGlobalUp);
+    window.addEventListener('touchcancel', handleGlobalUp);
+    window.addEventListener('blur', handleGlobalUp);
 
     return () => {
       window.removeEventListener('mousemove', handleGlobalMove);
       window.removeEventListener('mouseup', handleGlobalUp);
       window.removeEventListener('touchmove', handleGlobalTouchMove);
       window.removeEventListener('touchend', handleGlobalUp);
+      window.removeEventListener('touchcancel', handleGlobalUp);
+      window.removeEventListener('blur', handleGlobalUp);
     };
   }, [state]); // Re-bind if state logic needs it, though refs handle values. Dependency on state might be needed if we used it inside, but here we just dispatch.
 
