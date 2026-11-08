@@ -29,6 +29,12 @@ npm run build
 npm run preview
 ```
 
+To run the dependency-free kinematics unit tests, use **Node.js 22+**:
+
+```bash
+npm test
+```
+
 **No Gemini API key is required.** The app's source and `package.json` have no Gemini API integration. The page currently loads Tailwind CSS from a CDN, so an internet connection is useful for the intended styling.
 
 ## Kinematics
