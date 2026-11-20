@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react';
 import { RobotState, SwerveModule, Vector2 } from '../types';
-import { calculateModuleVelocity, magnitude, radToDeg, formatAngle } from '../utils/math';
+import { calculateModuleVelocity, desaturateWheelVectors, magnitude, radToDeg, formatAngle } from '../utils/math';
 import { VectorArrow } from './VectorArrow';
 
 interface SwerveCanvasProps {
   state: RobotState;
+  maxWheelSpeed: number;
 }
 
-export const SwerveCanvas: React.FC<SwerveCanvasProps> = ({ state }) => {
+export const SwerveCanvas: React.FC<SwerveCanvasProps> = ({ state, maxWheelSpeed }) => {
   // CONFIGURATION
   const VIEWBOX_SIZE = 600;
   const CENTER = VIEWBOX_SIZE / 2;
@@ -52,13 +53,25 @@ export const SwerveCanvas: React.FC<SwerveCanvasProps> = ({ state }) => {
     y: -v.x,
   });
 
+  const rawWheelVectors = modules.map(mod =>
+    calculateModuleVelocity(state.vx, state.vy, state.omega, mod.position.x, mod.position.y)
+  );
+  const limited = desaturateWheelVectors(rawWheelVectors, maxWheelSpeed);
+
   // Chassis Velocity Vector
-  const chassisVelocityRobot = { x: state.vx, y: state.vy };
+  const chassisVelocityRobot = { x: state.vx * limited.scale, y: state.vy * limited.scale };
   const chassisVelocityScreen = vectorToScreen(chassisVelocityRobot);
   const chassisSpeed = magnitude(chassisVelocityRobot);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-white rounded-xl shadow-inner border border-slate-200 overflow-hidden relative">
+      <div className="absolute top-4 right-4 bg-white/95 border border-slate-200 rounded p-2 text-xs text-right z-10" aria-live="polite">
+        <div className="font-semibold text-slate-700">Wheel limit: {maxWheelSpeed.toFixed(2)} m/s</div>
+        <div className="text-slate-600">Requested peak: {limited.requestedPeak.toFixed(2)} m/s</div>
+        <div className={limited.scale < 1 ? 'font-bold text-amber-700' : 'text-emerald-700'}>
+          {limited.scale < 1 ? `Desaturated to ${(limited.scale * 100).toFixed(0)}%` : 'Within limit'}
+        </div>
+      </div>
       {/* Overlay info */}
       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur p-3 rounded border border-slate-200 shadow-sm text-xs z-10">
         <div className="font-bold text-slate-700 mb-1">ROBOT FRAME (NWU)</div>
@@ -119,7 +132,7 @@ export const SwerveCanvas: React.FC<SwerveCanvasProps> = ({ state }) => {
             scale={METERS_TO_PX * VELOCITY_SCALE_FACTOR}
             color="#3b82f6"
             width={5}
-            label="V_robot"
+            label="V_applied"
             opacity={0.5}
           />
         )}
@@ -148,18 +161,12 @@ export const SwerveCanvas: React.FC<SwerveCanvasProps> = ({ state }) => {
         )}
 
         {/* SWERVE MODULES */}
-        {modules.map((mod) => {
+        {modules.map((mod, index) => {
           // 1. Position on Screen
           const modScreenPos = robotToScreen(mod.position);
 
           // 2. Physics: Wheel Velocity in Robot Frame
-          const vWheelRobot = calculateModuleVelocity(
-             state.vx, 
-             state.vy, 
-             state.omega, 
-             mod.position.x, 
-             mod.position.y
-          );
+          const vWheelRobot = limited.vectors[index];
 
           // 3. Visualization: Vector on Screen
           const vWheelScreen = vectorToScreen(vWheelRobot);
