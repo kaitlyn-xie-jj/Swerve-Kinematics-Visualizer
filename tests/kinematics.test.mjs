@@ -33,3 +33,14 @@ test('angle conversion and wrapping match robot-frame convention', () => {
   assert.ok(Math.abs(degToRad(180) - Math.PI) < 1e-12);
   assert.equal(radToDeg(Math.PI), 180);
 });
+
+test('opposite modules have opposite velocities during pure yaw', () => {
+  for (const omega of [-3, -0.5, 0, 0.5, 3]) {
+    const a = calculateModuleVelocity(0, 0, omega, 0.4, 0.2);
+    const b = calculateModuleVelocity(0, 0, omega, -0.4, -0.2);
+    assert.ok(Math.abs(a.x + b.x) < 1e-12);
+    assert.ok(Math.abs(a.y + b.y) < 1e-12);
+    assert.ok(Math.abs(magnitude(a) - Math.abs(omega) * Math.hypot(0.4, 0.2)) < 1e-12);
+    assert.ok(Math.abs(a.x * 0.4 + a.y * 0.2) < 1e-12);
+  }
+});
