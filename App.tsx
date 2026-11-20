@@ -11,6 +11,8 @@ const App: React.FC = () => {
     omega: 0,
   });
 
+  const [maxWheelSpeed, setMaxWheelSpeed] = useState(1);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
       {/* Header */}
@@ -34,7 +36,7 @@ const App: React.FC = () => {
         {/* Visualization Area - Takes up more space */}
         <div className="lg:col-span-8 flex flex-col gap-4">
           <div className="aspect-square w-full max-h-[600px] mx-auto">
-             <SwerveCanvas state={robotState} />
+             <SwerveCanvas state={robotState} maxWheelSpeed={maxWheelSpeed} />
           </div>
           
           <div className="bg-white border border-slate-200 p-5 rounded-xl shadow-sm">
@@ -45,9 +47,9 @@ const App: React.FC = () => {
             <p className="text-sm text-slate-600 leading-relaxed">
               In a Swerve Drive, the robot's motion is the superposition of <strong>Translation</strong> (Chassis Velocity) and <strong>Rotation</strong> (Angular Velocity).
               <br/><br/>
-              The velocity vector for each wheel (<span className="text-red-500 font-bold">Red</span>) is calculated by adding the robot's translation vector (<span className="text-blue-500 font-bold">Blue</span>) 
+              The applied velocity vector for each wheel (<span className="text-red-500 font-bold">Red</span>) is calculated by adding the robot's translation vector (<span className="text-blue-500 font-bold">Blue</span>) 
               to the tangential velocity vector caused by the rotation (<span className="text-emerald-500 font-bold">Green</span>, not shown to reduce clutter).
-              Notice how wheels further from the center of rotation would move faster if the rotation center wasn't (0,0).
+              Try lowering the wheel speed limit to see uniform desaturation, a common step in real swerve-drive commands.
             </p>
           </div>
         </div>
@@ -55,6 +57,25 @@ const App: React.FC = () => {
         {/* Controls Area - Sidebar */}
         <div className="lg:col-span-4 flex flex-col items-center space-y-6">
           <ControlPanel state={robotState} onChange={setRobotState} />
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 w-full" aria-label="Wheel speed limit lesson">
+            <h2 className="font-bold text-slate-800 mb-2">Lesson: Wheel Speed Desaturation</h2>
+            <p className="text-sm text-slate-600 mb-3">
+              When one module exceeds the wheel speed limit, all four wheel
+              vectors are scaled by the same factor. This preserves their
+              relative speeds and angles instead of clipping individual wheels.
+            </p>
+            <label htmlFor="max-wheel-speed" className="block text-sm font-medium text-slate-700 mb-2">
+              Maximum wheel speed: {maxWheelSpeed.toFixed(2)} m/s
+            </label>
+            <input id="max-wheel-speed" type="range" min="0.25" max="2" step="0.05"
+              value={maxWheelSpeed}
+              onChange={e => setMaxWheelSpeed(Number(e.target.value))}
+              className="w-full accent-indigo-600" />
+            <p className="text-xs text-slate-500 mt-2">
+              Try Vx = 1, Vy = 1, and ω = 1, then lower the limit.
+              This normalized teaching example is not calibrated to real motors.
+            </p>
+          </section>
           
           <div className="text-xs text-slate-400 text-center max-w-[280px]">
             <p className="mb-2"><strong>Tips:</strong></p>
