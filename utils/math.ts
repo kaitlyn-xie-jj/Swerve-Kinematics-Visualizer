@@ -40,3 +40,24 @@ export const calculateModuleVelocity = (
     y: vy + omega * moduleX
   };
 };
+
+/**
+ * Uniformly desaturate wheel vectors to respect a drive speed limit.
+ * Unlike clipping each wheel, a common scale preserves the requested
+ * chassis motion direction and translation/rotation ratio.
+ */
+export const desaturateWheelVectors = (
+  vectors: Vector2[],
+  maxSpeed: number
+): { vectors: Vector2[]; scale: number; requestedPeak: number } => {
+  if (!Number.isFinite(maxSpeed) || maxSpeed <= 0) {
+    throw new RangeError('maxSpeed must be positive and finite');
+  }
+  const requestedPeak = Math.max(0, ...vectors.map(magnitude));
+  const scale = requestedPeak > maxSpeed ? maxSpeed / requestedPeak : 1;
+  return {
+    vectors: vectors.map(v => ({ x: v.x * scale, y: v.y * scale })),
+    scale,
+    requestedPeak
+  };
+};
